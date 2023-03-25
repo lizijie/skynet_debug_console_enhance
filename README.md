@@ -1,7 +1,7 @@
 [TOC]
 
 我思考过debug_console的设计能否支持非入侵式地改动和新增内容，遗憾的是，截止至[skynet v1.6.0](https://github.com/cloudwu/skynet/releases/tag/v1.6.0)还做不到。
-结果我新建了一个仓库维护这份代码。因为修改是基于[skynet v1.6.0](https://github.com/cloudwu/skynet/releases/tag/v1.6.0)，如果你不是这个版本，覆盖文件后注意检查skynet的接口变化
+结果我新建了一个仓库[skynet_debug_console_enhance](https://github.com/lizijie/skynet_debug_console_enhance)维护这份代码。因为修改是基于[skynet v1.6.0](https://github.com/cloudwu/skynet/releases/tag/v1.6.0)，如果你不是这个版本，覆盖文件后注意检查skynet的接口变化
 
 
 # 修改COMMAND.mem
