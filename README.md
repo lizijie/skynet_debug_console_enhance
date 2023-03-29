@@ -1,8 +1,9 @@
+
 [TOC]
 
-我思考过debug_console的设计能否支持非入侵式地改动和新增内容，遗憾的是，截止至[skynet v1.6.0](https://github.com/cloudwu/skynet/releases/tag/v1.6.0)还做不到。
-结果我新建了一个仓库[skynet_debug_console_enhance](https://github.com/lizijie/skynet_debug_console_enhance)维护这份代码。因为修改是基于[skynet v1.6.0](https://github.com/cloudwu/skynet/releases/tag/v1.6.0)，如果你不是这个版本，覆盖文件后注意检查skynet的接口变化
-
+在改动debug_console里面的内容时，我寻找原来的设计中能否支持非入侵式地改动，遗憾的是截止至[skynet v1.6.0](https://github.com/cloudwu/skynet/releases/tag/v1.6.0)还做不到。
+所以我新建了一个仓库[skynet_debug_console_enhance](https://github.com/lizijie/skynet_debug_console_enhance)来维护这些代码。
+因为修改是基于[skynet v1.6.0](https://github.com/cloudwu/skynet/releases/tag/v1.6.0)，如果你不是这个版本，覆盖文件后注意检查skynet的接口变化
 
 # 修改COMMAND.mem
 
@@ -169,7 +170,7 @@ diff_mem
 
 # 新增.号命令，重复执行上次指令
 
-```shel
+```shell
 stat
  :01000007 cpu:0.005503   message:9          mqlen:0     task:0     snlua datacenterd 
  :0100000e cpu:0.005595   message:12         mqlen:0     task:0     snlua watchdog
@@ -248,7 +249,33 @@ diff_mem
 
 <CMD:diff_mem OK>
 ```
-  
+
+# sharetable排序输出
+sharetable性能参数是从`info`指令输出的，原来的版本中是没有排序的，在定位哪些配置占用太多内存时，非常杂乱不直观。`info`指令输出的输出什么内容，是由各个服务自定义解决的，针对sharetable的排序优化，并不能去修改debug_console中的COMMAND.info方法，所以要到sharetable.lua修改里面的skynet.info_func事件处理方法。
+
+以./test/testsharetable.lua为例， `:0100000b`是我机器此时运行的snlua service_cell sharetable服务的handle值，每次启动都可能不同。你可以从`list`指令找到对应服务的handle值
+修改前
+```shell
+info :0100000b
+test    current:userdata: 0x7fbc96d3fa00        history:userdata: 0x7fbc96d3bec0 [21406]: (:01000009)
+        userdata: 0x7fbc96d3fa00 [21174]: (:01000009)   size:21174
+test_one        current:userdata: 0x7fbc96d47480        history:userdata: 0x7fbc96d47480 [21306]: (:01000009)   size:21306
+test_three      current:userdata: 0x7fbc96d4e880        history:userdata: 0x7fbc96d4e880 [21308]: (:01000009)   size:21308
+test_two        current:userdata: 0x7fbc96d47e80        history:userdata: 0x7fbc96d47e80 [21306]: (:01000009)   size:21306
+<CMD OK>
+```
+修改后size以kb单位显示，小到大排序
+```shell
+info :0100000b
+
+ test       size:20.68 kb current:userdata: 0x7efe2ad37a80 history:userdata: 0x7efe2ad37a80 [21174]: (:01000009)
+        userdata: 0x7efe2ad36f40 [21406]: (:01000009)
+ test_two   size:20.81 kb current:userdata: 0x7efe2ad42f00 history:userdata: 0x7efe2ad42f00 [21306]: (:01000009)
+ test_one   size:20.81 kb current:userdata: 0x7efe2ad42500 history:userdata: 0x7efe2ad42500 [21306]: (:01000009)
+ test_three size:20.81 kb current:userdata: 0x7efe2ad46900 history:userdata: 0x7efe2ad46900 [21308]: (:01000009)
+<CMD OK>
+```
+
   
 <b>原文:<br>
 <https://lizijie.github.io/2022/11/20/%E5%A2%9E%E5%BC%BAskynet%E4%B8%ADdebug_console.lua%E9%83%A8%E5%88%86%E6%8C%87%E4%BB%A4.html>
